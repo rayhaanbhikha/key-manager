@@ -1,9 +1,9 @@
 const express = require('express');
 const app = express();
 
-const keys = require('./keys');
+const keys = require('./KeyManager');
 
-app.get("/", async (req, res) => {
+app.get("/", async (req, res, next) => {
     try {
         const service = req.headers["service"];
         const key = await keys.fetchKey(service)
@@ -11,15 +11,21 @@ app.get("/", async (req, res) => {
         console.log("key: ", key);
         res.send("hello world");
     } catch (error) {
-        console.log(error.message)
-        res.send(error.message)
-        res.status(404)
+        return next(error)
     }
 })
 
-app.get("/all", (req, res) => {
-    keys.listKeys();
-    res.send("all keys")
+app.get("/keys", (req, res, next) => {
+    try {
+        const k = keys.listKeys();
+        res.json(k)
+    } catch (error) {
+        return next(error)
+    }
+})
+
+app.use((error, req, res, next) => {
+    res.status(404).send({ error: error.message })
 })
 
 app.listen(3000, () => console.log("Server start listening"))

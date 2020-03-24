@@ -7,7 +7,7 @@ const callToVault = key => new Promise((res, rej) => setTimeout(() => {
     }
 }, 1000))
 
-const refreshInterval = 1 * 10 * 1000
+const refreshInterval = 2 * 60 * 1000
 
 class Key {
     async init(name) {
@@ -30,7 +30,7 @@ class Key {
 }
 
 
-class Keys {
+class KeyManager {
     constructor() {
         this.apiKeys = {}
     }
@@ -55,11 +55,12 @@ class Keys {
     }
 
     listKeys() {
-        console.log("\n====keys====\n");
-        for (let [keyName, key] of Object.entries(this.apiKeys)) {
-            console.log(keyName, key.value)
-        }
+        const reduceFunc = (acc, [keyName, key]) => ({
+            ...acc,
+            [keyName]: key.value
+        })
+        return Object.entries(this.apiKeys).reduce(reduceFunc, {})
     }
 }
 
-module.exports = new Keys()
+module.exports = new KeyManager()
