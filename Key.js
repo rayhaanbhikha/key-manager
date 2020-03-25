@@ -10,8 +10,14 @@ class Key {
     async init(name, refreshInterval) {
         this.name = name
         this.refreshInterval = refreshInterval
+        this.refreshTimeout = refreshInterval * 2
         await this.updateKey()
         this.refreshPol();
+    }
+
+    getValue() {
+        this.lastUsed = Date.now();
+        return this.value;
     }
 
     async updateKey() {
@@ -20,9 +26,18 @@ class Key {
 
     refreshPol() {
         console.log("refresh interval started");
-        setInterval(async () => {
-            console.log("refreshin key: ", this.name)
-            await this.updateKey()
+        this.interval = setInterval(async () => {
+            const diff = Date.now() - this.lastUsed;
+            console.log(diff, this.refreshTimeout);
+            if (diff > this.refreshTimeout) {
+                console.log("stopping key rotation: ", this.name)
+                clearInterval(this.interval)
+            } else {
+                console.log("rotating key: ", this.name)
+                await this.updateKey()
+            }
         }, this.refreshInterval)
     }
 }
+
+module.exports = Key;

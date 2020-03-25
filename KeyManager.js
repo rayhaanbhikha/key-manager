@@ -1,3 +1,4 @@
+const Key = require('./Key');
 class KeyManager {
     constructor() {
         this.refreshInterval = process.env.REFRESH_INTERVAL || 2 * 60 * 1000
@@ -6,7 +7,7 @@ class KeyManager {
 
     async createKey(keyName) {
         const newKey = new Key()
-        await newKey.init(keyName)
+        await newKey.init(keyName, this.refreshInterval)
         return newKey
     }
 
@@ -19,7 +20,7 @@ class KeyManager {
         if (key !== undefined) return key;
         const newKey = await this.createKey(keyName);
         this.apiKeys[keyName] = newKey
-        return newKey.value;
+        return newKey.getValue();
     }
 
     listKeys() {
